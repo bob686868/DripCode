@@ -6,10 +6,13 @@ import { addItemToCartAction } from "../serverActions";
 import { useState } from "react";
 import { useCartStore } from "../../stores/useCartStore";
 import SubmitButton from "./SubmitButton";
+import {useAuth, useClerk} from '@clerk/nextjs'
 const ProductDetails = ({ product }) => {
   const { id, name, description, price, stock, colors } = product;
   const [activeIndex, setActiveIndex] = useState(0);
   const openCart = useCartStore((state) => state.openCart);
+  const {isLoaded ,userId}= useAuth()
+  const {redirectToSignIn} = useClerk()
   function increment(func) {
     func((prev) => (prev + 1) % colors.length);
   }
@@ -17,6 +20,9 @@ const ProductDetails = ({ product }) => {
     func((prev) => (prev - 1 + colors.length) % colors.length);
   }
   async function handler(formData) {
+    if (isLoaded && !userId) {
+    return redirectToSignIn();
+  }
     await addItemToCartAction(formData);
     window.dispatchEvent(new Event("cart-updated"));
     setTimeout(() => openCart(), 2000);

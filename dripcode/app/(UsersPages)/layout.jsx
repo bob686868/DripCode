@@ -24,13 +24,13 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
-      <UserSync />
 
-      <Navbar></Navbar>
-      <html lang="en">
+      <html lang="en" className="bg-neutral-900">
         <body
           className={`${geistSans.variable} bg-neutral-900 ${geistMono.variable} antialiased`}
-        >
+          >
+      <UserSync />
+          <Navbar></Navbar>
           {children}
           <Toaster position="top-center" richColors />
         </body>
