@@ -1,0 +1,122 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/client" // This path is relative to the prisma folder
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = "postgresql://postgres.jcfdllqxwdaiiicxilqx:Ejet_n8p83NCtx%@aws-1-ap-south-1.pooler.supabase.com:5432/postgres"
+}
+
+enum Color {
+  BLACK
+  WHITE
+  GRAY
+  SILVER
+  RED
+  ORANGE
+  YELLOW
+  GOLD
+  GREEN
+  OLIVE
+  TEAL
+  BLUE
+  NAVY
+  TURQUOISE
+  PURPLE
+  VIOLET
+  PINK
+  BROWN
+  BEIGE
+  TAN
+  CREAM
+  MAROON
+  FORREST
+  SAND
+}
+
+enum Status {
+  DELIVERED
+  SHIPPING
+  CANCELED
+}
+
+model ProductColor {
+  id        Int     @id @default(autoincrement())
+  color     Color
+  products  Product @relation(fields: [productId], references: [id])
+  productId Int
+  url       String
+}
+
+model Product {
+  id          Int                    @id @default(autoincrement())
+  name        String
+  description String?
+  slug        String?
+  price       Float
+  stock       Int
+  colors      ProductColor[]
+  category    String
+  cartItem    CartItem[]
+  createdAt   DateTime               @default(now())
+  embedding   Unsupported("vector")?
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  cartId    Int
+  url       String
+  color     Color
+  quantity  Int
+
+  @@unique([cartId, productId, color])
+}
+
+model Cart {
+  id        Int        @id @default(autoincrement())
+  cartItems CartItem[]
+  userId    String     @unique
+  user      User       @relation(fields: [userId], references: [id])
+}
+
+model User {
+  id       String  @id
+  username String
+  email    String  @unique
+  // password String
+  isAdmin  Boolean @default(false)
+  cart     Cart?
+  orders   Order[]
+}
+
+model Order {
+  id         Int         @id @default(autoincrement())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id])
+  totalPrice Int
+  status     Status      @default(SHIPPING)
+  orderItems OrderItem[]
+  createdAt  DateTime    @default(now())
+}
+
+model OrderItem {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  slug        String?
+  price       Float
+  category    String
+  productId   Int
+  quantity    Int
+  color       Color
+  url         String
+  Order       Order   @relation(fields: [orderId], references: [id])
+  orderId     Int
+}
