@@ -143,3 +143,30 @@ export async function getProductsByCategory({category = "All",sortBy,query}){
         return {status:500,message:"error fetching products"}
     }
 }
+
+export async function removeDuplicates(){
+    try {
+        let allProducts=await prisma.product.findMany({
+            select:{id:true,name:true}
+        })
+
+        let names=new Set()
+        let ids=[]
+
+        allProducts.forEach(p => {
+            if(names.has(p.name)){
+                ids.push(p.id)
+            }else{
+                names.add(p.name)
+            }
+        });
+        if(!ids.length)return;
+        await prisma.product.deleteMany({
+            where:{
+                id:{in:ids}
+            }
+        })
+    } catch (error) {
+        console.error(error.message)
+    }
+}
