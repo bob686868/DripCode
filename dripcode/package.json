@@ -6,7 +6,7 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint",g
+    "lint": "eslint",
   "postinstall": "prisma generate --schema=../prisma/schema.prisma"
 
   },
