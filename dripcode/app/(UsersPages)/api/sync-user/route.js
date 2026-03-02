@@ -1,4 +1,4 @@
-import { prisma } from '../../../../actions/client'; // Adjust this path to your prisma client
+import { prisma } from '../../../../actions/client.js'; // Adjust this path to your prisma client
 import { NextResponse } from 'next/server';
 
 export async function POST(req) {
