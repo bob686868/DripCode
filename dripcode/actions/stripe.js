@@ -36,11 +36,18 @@ if (outOfStock) return { error: `${outOfStock.product.name} is out of stock!` };
         },
         quantity:item.quantity
     }))
+    let base_url=""
+    if(process.env.NODE_ENV == "production"){
+        base_url=process.env.NEXT_PUBLIC_BASE_URL
+    }
+    else{
+        base_url=process.env.NEXT_PUBLIC_BASE_URL_Production
+    }
     const session=await stripe.checkout.sessions.create({
         line_items,
         mode:"payment",
-        success_url:`${process.env.NEXT_PUBLIC_BASE_URL}/success`,
-        cancel_url:`${process.env.NEXT_PUBLIC_BASE_URL}/`,
+        success_url:`${base_url}/success`,
+        cancel_url:`${base_url}/`,
         metadata:{
             userId
         }
