@@ -2,6 +2,7 @@
 import Stripe from 'stripe'
 import {redirect} from 'next/navigation'
 import { auth } from '@clerk/nextjs/server'
+import {prisma} from './client.js'
 
 const stripe=new Stripe(process.env.STRIPE_SECRET_KEY)
 
