@@ -76,7 +76,7 @@ export async function updateQuantity({cartItemId,quantity}){
         return {status:500,message:"error adding item to cart"}
     }
 }
-/**/
+
 export async function deleteFromCart(id){
     try {
         
