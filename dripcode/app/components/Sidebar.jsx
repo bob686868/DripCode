@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Suspense } from 'react'
 import { IoMdClose } from "react-icons/io";
 import SearchBar from './SearchBar';
 import Link from 'next/link'
@@ -11,7 +11,9 @@ const Sidebar = ({setIsSidebarOpen}) => {
             <IoMdClose></IoMdClose>
         </div>
         <div className='flex flex-1 justify-center mb-4'>
+          <Suspense fallback={<div className="h-10 w-full animate-pulse bg-neutral-800 rounded-md" />}>
             <SearchBar setIsSidebarOpen={setIsSidebarOpen}></SearchBar>
+          </Suspense>
         </div>
         <div className='flex flex-col text-lg text-neutral-100 gap-y-3'>
             <Link href="/search/All" className="w-fit hover:underline decoration-white cursor-pointer">All</Link>

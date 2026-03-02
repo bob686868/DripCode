@@ -4,8 +4,6 @@ import { useState } from "react";
 import { CiSearch } from "react-icons/ci";
 
 const SearchBar = ({ setIsSidebarOpen }) => {
-  console.log(setIsSidebarOpen);
-  console.log("sidebar");
   const routerParams = useParams();
   const status = routerParams.status;
   const category = routerParams.category || "All";
