@@ -37,13 +37,9 @@ if (outOfStock) return { error: `${outOfStock.product.name} is out of stock!` };
         },
         quantity:item.quantity
     }))
-    let base_url=""
-    if(process.env.NODE_ENV == "production"){
-        base_url=process.env.NEXT_PUBLIC_BASE_URL_Production
-    }
-    else{
-        base_url=process.env.NEXT_PUBLIC_BASE_URL
-    }
+    const base_url = process.env.NODE_ENV === "production"
+        ? "https://drip-code-coral.vercel.app" 
+        : "http://localhost:3000";
     const session=await stripe.checkout.sessions.create({
         line_items,
         mode:"payment",
