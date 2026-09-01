@@ -1,12 +1,15 @@
 import React from 'react'
 import ProductDetails from '../../../components/ProductDetails'
 import {getProductById} from '../../../../actions/stock'
+export const dynamic = "force-dynamic";
+
 const page = async ({params}) => {
     let {id}=await params
-    let {product}=await getProductById(id)
+    let res = await getProductById(id)
+    let product = res?.product || null;
   return (
     <div className='mx-3'>
-      <ProductDetails product={product}></ProductDetails>
+      {product && <ProductDetails product={product}></ProductDetails>}
     </div>
   )
 }

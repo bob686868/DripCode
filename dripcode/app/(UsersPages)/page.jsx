@@ -61,6 +61,8 @@ import Carousel from "../components/Carousel";
 import GridDisplay from "../components/GridDisplay";
 import Link from "next/link";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const { products } = await getProducts();
   if (!products || products.length === 0) return null;

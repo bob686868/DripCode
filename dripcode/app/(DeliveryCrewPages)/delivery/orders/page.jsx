@@ -1,8 +1,11 @@
 import React from 'react'
 import Orders from './Orders'
 import { getOrdersByStatus } from '../../../../actions/orders'
+export const dynamic = "force-dynamic";
+
 const page = async() => {
-  let {orders}=await getOrdersByStatus("Shipping")
+  const result = await getOrdersByStatus("Shipping");
+  const orders = result?.orders || [];
 
   return (
     <div>

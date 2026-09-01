@@ -8,7 +8,7 @@ const layout = async ({ children }) => {
 
   console.log(role);
   console.log("delivery");
-  if (role != "delivery crew" && role != "admin") redirect("/");
+  if (role != "delivery" && role != "admin") redirect("/");
   return (
     <html className="bg-neutral-900">
       <body className="bg-neutral-950">{children}</body>

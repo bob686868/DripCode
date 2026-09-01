@@ -1,7 +1,7 @@
-import {create} from 'zustand'
+import { create } from "zustand";
 
-export const useCartStore=create((set)=>({
-    isCartOpen:false,
-    openCart: ()=>set(()=>({isCartOpen:true})),
-    closeCart: ()=>set(()=>({isCartOpen:false}))
-}))
+export const useCartStore = create((set) => ({
+  isCartOpen: false,
+  openCart: () => set(() => ({ isCartOpen: true })),
+  closeCart: () => set(() => ({ isCartOpen: false })),
+}));

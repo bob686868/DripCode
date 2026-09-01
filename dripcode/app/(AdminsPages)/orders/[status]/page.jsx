@@ -5,10 +5,13 @@ import Headers from "../../components/Headers";
 import Link from "next/link";
 // import Chart from '../../components/TrendChart'
 
+export const dynamic = "force-dynamic";
+
  const Page = async ({ params }) => {
   const { status } = await params;
-  const { orders } = await getOrdersByStatus(status.toUpperCase());
-  const total = orders.reduce((acc, order) => order.totalPrice + acc, 0);
+  const result = await getOrdersByStatus(status.toUpperCase());
+  const orders = result?.orders || [];
+  const total = orders.reduce((acc, order) => (order.totalPrice || 0) + acc, 0);
   
   const statuses = ["all", "shipping", "delivered", "canceled"];
   const statusesTitles = ["All", "Shipping", "Delivered", "Canceled"];
