@@ -17,7 +17,7 @@ const LeftSideBar = ({active='All',sort}) => {
   ];
   const sortString= sort ?  `?sort=${sort}` : ""
   return (
-    <div className="text-sm w-[20%] flex-col gap-y-2 pl-2 hidden sm:flex">
+    <div className="text-sm w-[20%] ml-4 flex-col gap-y-2 pl-2 hidden sm:flex">
       <div className="text-sm text-neutral-400">Collections</div>
       <div className="flex flex-col gap-y-2">
         {data.map((name,id)=>(

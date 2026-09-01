@@ -11,6 +11,7 @@ import {
   UserButton,
   useUser,
 } from "@clerk/nextjs";
+import Logo from "./Logo";
 
 import SearchBar from "./SearchBar";
 import Sidebar from "./Sidebar";
@@ -54,16 +55,23 @@ const Navbar = () => {
             <GiHamburgerMenu />
           </button>
 
-          <div className="hidden sm:flex gap-x-5">
-            {["All", "Shirts", "Stickers"].map((cat) => (
+          <div className="hidden sm:flex items-center gap-x-5"><Logo className="mr-2" />
+            {["Home", "All"].map((cat) => (
               <NavLink
                 key={cat}
-                href={`/search/${cat}`}
-                active={params.category === cat}
+                href={`${cat=="Home" ? "/" :`/search/${cat}`}`}
+                active={params.category === cat || (cat =="Home" && !params.category)}
               >
                 {cat}
               </NavLink>
             ))}
+            <Link
+              href="/chatbot"
+              className="flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300 hover:bg-indigo-500/20 hover:text-white hover:border-indigo-400 transition"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
+              AI Assistant
+            </Link>
             {orderLink && (
               <NavLink href={orderLink.href} active={!!params.status}>
                 {orderLink.label}
@@ -74,9 +82,7 @@ const Navbar = () => {
 
         {/* MIDDLE: Search or Branding */}
         <div className="flex-1 max-w-md px-4">
-          <div className="text-neutral-100 font-bold text-xl sm:hidden text-center">
-            ACME
-          </div>
+      
           <div className="hidden sm:block">
             <Suspense
               fallback={
@@ -87,6 +93,7 @@ const Navbar = () => {
             </Suspense>
           </div>
         </div>
+
 
         {/* RIGHT: Auth & Cart */}
         <div className="flex items-center gap-x-4">

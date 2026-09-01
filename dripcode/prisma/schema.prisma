@@ -33,12 +33,13 @@ enum Color {
   BEIGE
   TAN
   CREAM
-  MAROON   
-  FORREST  
-  SAND     
+  MAROON
+  FORREST
+  SAND
 }
+
 enum Status {
-  DELIVERED 
+  DELIVERED
   SHIPPING
   CANCELED
 }
@@ -46,13 +47,13 @@ enum Status {
 model ProductColor {
   id        Int     @id @default(autoincrement())
   color     Color
-  products  Product @relation(fields: [productId], references: [id],onDelete:Cascade )
+  products  Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int
   url       String
 }
 
 model Product {
-  id          Int            @id @default(autoincrement())
+  id          Int                    @id @default(autoincrement())
   name        String
   description String?
   slug        String?
@@ -61,20 +62,21 @@ model Product {
   colors      ProductColor[]
   category    String
   cartItem    CartItem[]
-  createdAt DateTime @default(now())
-  embedding Unsupported("vector")?
+  createdAt   DateTime               @default(now())
+  embedding   Unsupported("vector")?
 }
 
 model CartItem {
-  id       Int       @id @default(autoincrement())
-  product  Product @relation(fields:[productId],references: [id],onDelete: Cascade)
+  id        Int     @id @default(autoincrement())
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId Int
-  cart     Cart      @relation(fields: [cartId], references: [id])
-  cartId   Int
-  url      String
-  color Color
-  quantity Int
-  @@unique([cartId,productId,color])
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  cartId    Int
+  url       String
+  color     Color
+  quantity  Int
+
+  @@unique([cartId, productId, color])
 }
 
 model Cart {
@@ -90,31 +92,31 @@ model User {
   email    String  @unique
   // password String
   isAdmin  Boolean @default(false)
-  cart     Cart? 
+  cart     Cart?
   orders   Order[]
 }
 
 model Order {
-  id         Int    @id @default(autoincrement())
+  id         Int         @id @default(autoincrement())
   userId     String
-  user       User   @relation(fields: [userId], references: [id])
+  user       User        @relation(fields: [userId], references: [id])
   totalPrice Int
-  status Status @default(SHIPPING)
+  status     Status      @default(SHIPPING)
   orderItems OrderItem[]
-  createdAt DateTime @default(now())
+  createdAt  DateTime    @default(now())
 }
 
 model OrderItem {
-  id          Int            @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   name        String
   description String?
   slug        String?
   price       Float
   category    String
-  productId Int
-  quantity Int
-  color Color
-  url String
-  Order Order @relation(fields:[orderId],references: [id])
-  orderId Int 
+  productId   Int
+  quantity    Int
+  color       Color
+  url         String
+  Order       Order   @relation(fields: [orderId], references: [id])
+  orderId     Int
 }

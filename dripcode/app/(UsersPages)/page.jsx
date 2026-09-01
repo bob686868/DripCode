@@ -59,6 +59,7 @@
 import { getProducts } from "../../actions/stock";
 import Carousel from "../components/Carousel";
 import GridDisplay from "../components/GridDisplay";
+import Link from "next/link";
 
 export default async function Home() {
   const { products } = await getProducts();
@@ -66,15 +67,29 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-neutral-950 text-neutral-100">
-      {/* WRAP THIS IN THE SAME CONTAINER AS BEST SELLERS */}
-      <section className="py-8 md:py-12 max-w-7xl mx-auto px-4 w-full">
+      {/* Featured Grid Section */}
+      <section className="py-6 md:py-10 max-w-7xl mx-auto px-4 w-full">
         <GridDisplay products={products.slice(0, 3)} />
       </section>
 
-      <section className="py-12 border-t border-neutral-800">
+      {/* Best Sellers Section */}
+      <section className="py-12 border-t border-neutral-800/80">
         <div className="max-w-7xl mx-auto px-4 w-full">
           <div className="flex items-end justify-between mb-8">
-            {/* ... title logic ... */}
+            <div>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight text-white">
+                Best Sellers
+              </h2>
+              <p className="text-neutral-400 mt-2 text-sm md:text-base font-normal">
+                Curated high-performance gear & everyday staples.
+              </p>
+            </div>
+            <Link
+              href="/search/All"
+              className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition hover:underline"
+            >
+              View All Products →
+            </Link>
           </div>
           <Carousel products={products.slice(3)} />
         </div>
@@ -82,3 +97,4 @@ export default async function Home() {
     </main>
   );
 }
+
