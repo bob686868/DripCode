@@ -17,11 +17,13 @@ import SearchBar from "./SearchBar";
 import Sidebar from "./Sidebar";
 import CartSideBar from "./CartSideBar";
 import { useCartStore } from "../../stores/useCartStore";
+import { getCartItems } from "@/actions/cart";
 
 const Navbar = () => {
   const { user } = useUser();
   const params = useParams();
   const [isSideBarOpen, setIsSideBarOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
 
   const openCart = useCartStore((state) => state.openCart);
   const isCartOpen = useCartStore((state) => state.isCartOpen);
@@ -29,6 +31,25 @@ const Navbar = () => {
   useEffect(() => {
     document.body.style.overflow = isCartOpen ? "hidden" : "unset";
   }, [isCartOpen]);
+
+  useEffect(() => {
+    const fetchCount = async () => {
+      if (user?.id) {
+        const res = await getCartItems(user.id);
+        const count = res?.cartItems?.cartItems?.reduce(
+          (acc, item) => acc + item.quantity,
+          0
+        ) || 0;
+        setCartCount(count);
+      } else {
+        setCartCount(0);
+      }
+    };
+    fetchCount();
+
+    window.addEventListener("cart-updated", fetchCount);
+    return () => window.removeEventListener("cart-updated", fetchCount);
+  }, [user?.id]);
 
   // Logic for conditional Order route
   const getOrderRoute = () => {
@@ -112,21 +133,27 @@ const Navbar = () => {
           <button
             className="border border-neutral-200/30 p-2.5 hover:scale-105 rounded-md transition relative"
             onClick={openCart}
+            aria-label="Shopping Cart"
           >
             <AiOutlineShoppingCart className="text-xl text-neutral-200" />
+            {cartCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-blue-600 px-1 text-[10px] font-bold text-white shadow-md">
+                {cartCount > 99 ? "99+" : cartCount}
+              </span>
+            )}
           </button>
         </div>
       </div>
 
       {/* Sidebars */}
       <div
-        className={`fixed inset-0 z-[100] transition-transform ${!isSideBarOpen ? "-translate-x-full" : "translate-x-0"}`}
+        className={`fixed inset-0 z-[100] transition-transform ${!isSideBarOpen ? "-translate-x-full pointer-events-none" : "translate-x-0"}`}
       >
         <Sidebar setIsSidebarOpen={setIsSideBarOpen} />
       </div>
 
       <div
-        className={`fixed inset-0 z-[100] transition-transform ${!isCartOpen ? "translate-x-full" : "translate-x-0"}`}
+        className={`fixed inset-0 z-[100] transition-transform ${!isCartOpen ? "translate-x-full pointer-events-none" : "translate-x-0"}`}
       >
         <CartSideBar />
       </div>

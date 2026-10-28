@@ -1,13 +1,11 @@
-import React from 'react'
-import '../globals.css'
-const layout = ({children}) => {
-  return (
-    <html >
-        <body className='bg-[#0f172a] h-screen [&::-webkit-scrollbar]:hidden'>
-            {children}
-        </body>
-    </html>
-  )
-}
+import React from "react";
 
-export default layout
+const ChatbotLayout = ({ children }) => {
+  return (
+    <div className="bg-[#0f172a] min-h-screen [&::-webkit-scrollbar]:hidden">
+      {children}
+    </div>
+  );
+};
+
+export default ChatbotLayout;

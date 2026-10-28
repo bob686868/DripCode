@@ -25,9 +25,7 @@ const ProductDetails = ({ product }) => {
   }
     await addItemToCartAction(formData);
     window.dispatchEvent(new Event("cart-updated"));
-    setTimeout(() => openCart(), 2000);
-
-    // openCart()
+    openCart();
   }
   return (
     <div className="rounded-md flex flex-col lg:justify-between lg:flex-row items-center lg:items-start bg-neutral-950 pt-20 pb-7 px-4">

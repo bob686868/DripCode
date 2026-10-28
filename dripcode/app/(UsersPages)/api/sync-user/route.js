@@ -1,13 +1,16 @@
-import { prisma } from '../../../../actions/client.js'; // Adjust this path to your prisma client
+import { prisma } from '../../../../actions/client.js';
 import { NextResponse } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 
 export async function POST(req) {
   try {
+    const { userId: authUserId } = await auth();
     const { clerkId, email, username } = await req.json();
 
-    // The 'upsert' command checks if the user exists.
-    // If NO: It creates the user AND a cart.
-    // If YES: It just updates the username/email.
+    if (!authUserId || authUserId !== clerkId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const user = await prisma.user.upsert({
       where: { id: clerkId },
       update: {

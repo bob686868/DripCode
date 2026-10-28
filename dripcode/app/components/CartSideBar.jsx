@@ -58,59 +58,69 @@ const CartSideBar = () => {
   };
   //    cartItems=cartItems.cartItems[0]
   return (
-    <div className="fixed inset-0   flex w-screen h-screen">
-      <div className="w-[70vw] bg-neutral-900/20 hidden lg:block"></div>
-      <div className=" w-full px-4  lg:w-[30vw] border border-neutral-400/40 bg-neutral-950 h-screen flex flex-col  inset-0 z-9999 p-3 ">
-        <div className="flex justify-between pt-3 items-center">
-          <span className="text-neutral-100 font-semibold text-2xl ">
+    <div className="fixed inset-0 flex justify-end w-screen h-screen">
+      {/* Clickable Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity cursor-pointer"
+        onClick={closeCart}
+      />
+
+      {/* Cart Content Drawer */}
+      <div className="relative w-full max-w-md bg-neutral-950 h-screen flex flex-col z-10 p-4 border-l border-neutral-800 shadow-2xl">
+        <div className="flex justify-between pt-2 pb-4 items-center border-b border-neutral-800">
+          <span className="text-neutral-100 font-semibold text-xl tracking-tight">
             My Cart
           </span>
-          <div
-            className="p-3 mb-3 w-fit rounded-md border border-neutral-100/20 text-neutral-100 cursor-pointer"
+          <button
+            className="p-2 rounded-lg border border-neutral-700 hover:border-neutral-500 text-neutral-300 hover:text-white cursor-pointer transition"
             onClick={(e) => {
               closeCart();
               e.stopPropagation();
             }}
           >
-            <IoMdClose></IoMdClose>
-          </div>
+            <IoMdClose className="size-5" />
+          </button>
         </div>
-        {(!optimisticCartItems || optimisticCartItems.length == 0) && (
-          <div className="mt-20 flex flex-col text-neutral-100  items-center">
-            <AiOutlineShoppingCart className="text-neutral-200  size-20" />
-            <div className="text-2xl mt-8">Your cart is empty</div>
+
+        {(!optimisticCartItems || optimisticCartItems.length === 0) && (
+          <div className="my-auto flex flex-col text-neutral-100 items-center justify-center p-6 text-center">
+            <AiOutlineShoppingCart className="text-neutral-600 size-20 mb-4" />
+            <div className="text-xl font-medium text-neutral-300">Your cart is empty</div>
+            <p className="text-sm text-neutral-500 mt-1">Add items to get started.</p>
           </div>
         )}
+
         {optimisticCartItems && optimisticCartItems.length > 0 && (
-          <div className="mt-6 flex flex-col gap-y-3">
+          <div className="mt-4 flex flex-col gap-y-3 overflow-y-auto flex-1 pr-1">
             {optimisticCartItems.map((item) => (
               <CartItem
                 update={updateCartItems}
                 data={item}
-                key={item.product.id}
-              ></CartItem>
+                key={item.id}
+              />
             ))}
           </div>
         )}
+
         {optimisticCartItems && optimisticCartItems.length > 0 && (
-          <div className="mt-auto flex flex-col gap-y-3">
-            <div className="flex justify-between pb-1 border-b border-neutral-400/30">
-              <span className="text-neutral-400 text-sm">Taxes</span>
-              <span className="text-neutral-100">$0.00 USD</span>
+          <div className="mt-auto pt-4 border-t border-neutral-800 flex flex-col gap-y-2.5">
+            <div className="flex justify-between text-sm">
+              <span className="text-neutral-400">Taxes</span>
+              <span className="text-neutral-100 font-mono">$0.00 USD</span>
             </div>
-            <div className="flex justify-between pb-1 border-b border-neutral-400/30">
-              <span className="text-neutral-400 text-sm">Shipping</span>
+            <div className="flex justify-between text-sm">
+              <span className="text-neutral-400">Shipping</span>
               <span className="text-neutral-400">Calculated at checkout</span>
             </div>
-            <div className="flex justify-between pb-1 border-b border-neutral-400/30">
-              <span className="text-neutral-400 text-sm">Total</span>
-              <span className="text-neutral-100">${total.toFixed(2)} USD</span>
+            <div className="flex justify-between text-base font-semibold pt-1 border-t border-neutral-800/80">
+              <span className="text-neutral-200">Total</span>
+              <span className="text-neutral-100 font-mono">${(total || 0).toFixed(2)} USD</span>
             </div>
-            <form action={handleCheckout} className="mt-3 mb-2">
+            <form action={handleCheckout} className="mt-2">
               <SubmitButton
                 text="Proceed to Checkout"
                 loadingText="Proceeding ..."
-              ></SubmitButton>
+              />
             </form>
           </div>
         )}

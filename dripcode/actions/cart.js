@@ -54,6 +54,17 @@ export async function addItemToCart({ productId, color, quantity = 1, url }) {
 
 export async function updateQuantity({ cartItemId, quantity }) {
   try {
+    const { userId } = await auth();
+    if (!userId) return { status: 401, message: "Unauthorized" };
+
+    const item = await prisma.cartItem.findUnique({
+      where: { id: cartItemId },
+      include: { cart: true },
+    });
+    if (!item || item.cart.userId !== userId) {
+      return { status: 403, message: "Unauthorized" };
+    }
+
     if (quantity == 0) {
       await prisma.cartItem.delete({
         where: { id: cartItemId },
@@ -66,29 +77,46 @@ export async function updateQuantity({ cartItemId, quantity }) {
     }
     revalidatePath("/", "layout");
 
-    return { status: 200, message: "quantity modifed" };
+    return { status: 200, message: "quantity modified" };
   } catch (error) {
     console.error(error.message);
-    return { status: 500, message: "error adding item to cart" };
+    return { status: 500, message: "error updating cart quantity" };
   }
 }
 
 export async function deleteFromCart(id) {
   try {
+    const { userId } = await auth();
+    if (!userId) return { status: 401, message: "Unauthorized" };
+
+    const item = await prisma.cartItem.findUnique({
+      where: { id },
+      include: { cart: true },
+    });
+    if (!item || item.cart.userId !== userId) {
+      return { status: 403, message: "Unauthorized" };
+    }
+
     await prisma.cartItem.delete({
       where: { id },
     });
+    revalidatePath("/", "layout");
     return { status: 200, message: "product deleted" };
   } catch (error) {
     console.error(error.message);
     return { status: 500, message: "error deleting product" };
   }
 }
-export async function getCartItems(userId) {
+
+export async function getCartItems(explicitUserId) {
   try {
+    const { userId } = await auth();
+    const targetUserId = userId || explicitUserId;
+    if (!targetUserId) return { cartItems: null, status: 401 };
+
     let cartProducts = await prisma.cart.findUnique({
       where: {
-        userId,
+        userId: targetUserId,
       },
       select: {
         cartItems: {

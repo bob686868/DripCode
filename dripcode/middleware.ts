@@ -1,12 +1,9 @@
-import { clerkMiddleware,createRouteMatcher } from '@clerk/nextjs/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-// export default clerkMiddleware();
-
-const isProtectedRoute = createRouteMatcher(['/myOrders(.*)', '/chat(.*)']);
+const isProtectedRoute = createRouteMatcher(['/myOrders(.*)', '/chatbot(.*)']);
 
 export default clerkMiddleware(async (auth, req) => {
   if (isProtectedRoute(req)) {
-    // This automatically redirects unauthenticated users to the Clerk hosted page
     await auth.protect();
   }
 });

@@ -1,43 +1,16 @@
-import { ClerkProvider } from "@clerk/nextjs";
-import { Geist, Geist_Mono } from "next/font/google";
 import UserSync from "./UserSync";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import ChatFloatingButton from "../components/ChatFloatingButton";
-import { Toaster } from "sonner";
-import "../globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
-
-export const metadata = {
-  title: "ACME Store - High Performance Streetwear & Modern Gear",
-  description: "Discover curated high-performance streetwear, apparel, accessories, and AI-assisted shopping.",
-};
-
-export default function RootLayout({ children }) {
+export default function UsersLayout({ children }) {
   return (
-    <ClerkProvider>
-      <html lang="en" className="bg-neutral-900">
-        <body
-          className={`${geistSans.variable} bg-neutral-900 ${geistMono.variable} antialiased`}
-        >
-          <UserSync />
-          <Navbar />
-          {children}
-          <ChatFloatingButton />
-          <Toaster position="top-center" richColors />
-          <Footer />
-        </body>
-      </html>
-    </ClerkProvider>
+    <>
+      <UserSync />
+      <Navbar />
+      {children}
+      <ChatFloatingButton />
+      <Footer />
+    </>
   );
 }
-

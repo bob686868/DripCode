@@ -47,7 +47,7 @@ export async function createCheckoutSession() {
   const session = await stripe.checkout.sessions.create({
     line_items,
     mode: "payment",
-    success_url: `${base_url}/success`,
+    success_url: `${base_url}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${base_url}/`,
     metadata: {
       userId,
@@ -55,4 +55,29 @@ export async function createCheckoutSession() {
   });
 
   redirect(session.url);
+}
+
+export async function confirmOrderFromSession(sessionId) {
+  try {
+    const { userId } = await auth();
+    if (!userId) return { success: false, message: "Unauthorized" };
+    if (!sessionId) return { success: false, message: "Missing session ID" };
+
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
+    if (!session || session.metadata?.userId !== userId) {
+      return { success: false, message: "Invalid session" };
+    }
+
+    if (session.payment_status !== "paid") {
+      return { success: false, message: "Payment incomplete" };
+    }
+
+    // Import createOrder dynamically or at top level to complete order
+    const { createOrder } = await import("./orders");
+    const result = await createOrder(userId);
+    return { success: true, result };
+  } catch (error) {
+    console.error("Payment confirmation error:", error.message);
+    return { success: false, message: error.message };
+  }
 }

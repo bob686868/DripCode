@@ -1,6 +1,15 @@
 "use server";
 
 import { prisma } from "./client";
+import { auth } from "@clerk/nextjs/server";
+
+async function assertAdmin() {
+  const { sessionClaims } = await auth();
+  const role = sessionClaims?.metadata?.role;
+  if (role !== "admin") {
+    throw new Error("Unauthorized: Admin access required");
+  }
+}
 
 // model ProductColor {
 //   id       Int       @id @default(autoincrement())
@@ -30,19 +39,20 @@ export async function addProductToStore({
   images,
   category,
 }) {
-  if (
-    !name ||
-    !stock ||
-    !price ||
-    !colors ||
-    colors.length == 0 ||
-    !images ||
-    colors.length != images.length
-  )
-    return { status: 404, message: "all fields are needed" };
-
-  const variants = colors.map((color, i) => ({ color, url: images[i] }));
   try {
+    await assertAdmin();
+    if (
+      !name ||
+      !stock ||
+      !price ||
+      !colors ||
+      colors.length == 0 ||
+      !images ||
+      colors.length != images.length
+    )
+      return { status: 404, message: "all fields are needed" };
+
+    const variants = colors.map((color, i) => ({ color, url: images[i] }));
     await prisma.product.create({
       data: {
         name,
@@ -58,7 +68,7 @@ export async function addProductToStore({
     return { status: 200, message: "product added " };
   } catch (error) {
     console.error(error.message);
-    return { status: 500, message: "error occured" };
+    return { status: 500, message: error.message || "error occured" };
   }
 }
 
@@ -67,18 +77,20 @@ export async function removeProductFromStore({ id }) {
     return { status: 500, message: "product id is needed to to this action" };
 
   try {
+    await assertAdmin();
     await prisma.product.delete({
       where: { id },
     });
     return { status: 200, message: "product deleted" };
   } catch (error) {
     console.error(error.message);
-    return { status: 500, message: "error deleting product" };
+    return { status: 500, message: error.message || "error deleting product" };
   }
 }
 
 export async function updateProduct(data, id) {
   try {
+    await assertAdmin();
     await prisma.product.update({
       where: { id: Number(id) },
       data,
@@ -86,7 +98,7 @@ export async function updateProduct(data, id) {
     return { status: 200, message: "product updated" };
   } catch (error) {
     console.error(error.message);
-    return { status: 500, message: "error updating product" };
+    return { status: 500, message: error.message || "error updating product" };
   }
 }
 
@@ -123,11 +135,12 @@ console.dir(product, { depth: null, colors: true });
 }
 export async function clearProducts() {
   try {
+    await assertAdmin();
     await prisma.productColor.deleteMany();
     await prisma.product.deleteMany();
   } catch (error) {
     console.error(error.message);
-    return { status: 500, messsage: "error clearing products" };
+    return { status: 500, message: error.message || "error clearing products" };
   }
 }
 
@@ -171,6 +184,7 @@ export async function getProductsByCategory({
 
 export async function removeDuplicates() {
   try {
+    await assertAdmin();
     let allProducts = await prisma.product.findMany({
       select: { id: true, name: true },
     });

@@ -3,14 +3,19 @@ import { revalidatePath } from "next/cache";
 import { prisma } from "./client";
 import { auth } from "@clerk/nextjs/server";
 
-export async function createOrder() {
+export async function createOrder(explicitUserId) {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Unauthorized");
+    let resolvedUserId = explicitUserId;
+    if (!resolvedUserId) {
+      const { userId } = await auth();
+      resolvedUserId = userId;
+    }
+    if (!resolvedUserId) throw new Error("Unauthorized");
+
     await prisma.$transaction(async (tx) => {
       const cart = await tx.cart.findUnique({
         where: {
-          userId,
+          userId: resolvedUserId,
         },
         include: {
           cartItems: {
@@ -45,13 +50,16 @@ export async function createOrder() {
           productId: item.productId,
         });
       }
-      const totalPrice = cartItems.reduce(
+      const rawTotal = cartItems.reduce(
         (acc, cur) => acc + cur.quantity * cur.price,
         0,
       );
+      // Ensure totalPrice is an integer to match Prisma schema
+      const totalPrice = Math.round(rawTotal);
+
       await tx.order.create({
         data: {
-          userId,
+          userId: resolvedUserId,
           orderItems: {
             createMany: { data: cartItems },
           },
@@ -70,12 +78,16 @@ export async function createOrder() {
     return { status: 200, message: "order created successfully" };
   } catch (error) {
     console.error(error.message);
-    return { status: 500, message: "failed to create your order" };
+    return { status: 500, message: error.message || "failed to create your order" };
   }
 }
 
 export async function getAllOrders() {
   try {
+    const { sessionClaims } = await auth();
+    const role = sessionClaims?.metadata?.role;
+    if (role !== "admin") return { status: 403, message: "Unauthorized" };
+
     let orders = await prisma.order.findMany({
       include: {
         user: {
@@ -94,6 +106,8 @@ export async function getAllOrders() {
 export async function getMyOrders(status, query = "") {
   try {
     let { userId } = await auth();
+    if (!userId) return { status: 401, message: "Unauthorized", orders: [] };
+
     let orders = await prisma.order.findMany({
       where: {
         userId,
@@ -107,8 +121,8 @@ export async function getMyOrders(status, query = "") {
           },
         },
       },
-      orderBy:{
-        createdAt:"desc"
+      orderBy: {
+        createdAt: "desc",
       },
       include: {
         orderItems: true,
@@ -122,6 +136,12 @@ export async function getMyOrders(status, query = "") {
 }
 
 export async function getOrdersByStatus(status) {
+  const { sessionClaims } = await auth();
+  const role = sessionClaims?.metadata?.role;
+  if (role !== "admin" && role !== "delivery") {
+    return { status: 403, message: "Unauthorized", orders: [] };
+  }
+
   status = status.toUpperCase();
   const where = status == "ALL" ? {} : { status };
   try {
@@ -140,9 +160,9 @@ export async function getOrdersByStatus(status) {
           },
         },
       },
-      orderBy:{
-        createdAt:"desc"
-      }
+      orderBy: {
+        createdAt: "desc",
+      },
     });
     return { orders, status: 200, message: "orders return successfully" };
   } catch (error) {
@@ -152,8 +172,13 @@ export async function getOrdersByStatus(status) {
 }
 
 export async function updateOrderStatus({ orderId, status }) {
-  console.log("upadting");
   try {
+    const { sessionClaims } = await auth();
+    const role = sessionClaims?.metadata?.role;
+    if (role !== "admin" && role !== "delivery") {
+      return { status: 403, message: "Unauthorized" };
+    }
+
     let orders = await prisma.order.update({
       where: {
         id: orderId,
@@ -162,7 +187,6 @@ export async function updateOrderStatus({ orderId, status }) {
         status,
       },
     });
-    console.log("updated");
     revalidatePath("/delivery/orders");
     return { orders, status: 200, message: "order updated successfully" };
   } catch (error) {
@@ -173,6 +197,9 @@ export async function updateOrderStatus({ orderId, status }) {
 
 export async function getOrderById(orderId) {
   try {
+    const { userId, sessionClaims } = await auth();
+    const role = sessionClaims?.metadata?.role;
+
     const order = await prisma.order.findUnique({
       where: {
         id: orderId,
@@ -182,6 +209,13 @@ export async function getOrderById(orderId) {
         orderItems: true,
       },
     });
+
+    if (!order) return { status: 404, message: "Order not found" };
+
+    if (role !== "admin" && role !== "delivery" && order.userId !== userId) {
+      return { status: 403, message: "Unauthorized" };
+    }
+
     return { status: 200, order };
   } catch (error) {
     console.error(error.message);

@@ -74,15 +74,50 @@ const Orders = ({ orders, status, query }) => {
                   <p className="text-xs text-neutral-500 uppercase tracking-wider font-bold">
                     Order Reference
                   </p>
-                  {/* FIX: Convert ID to String before slicing */}
                   <h3 className="text-neutral-100 font-mono text-sm uppercase">
                     CTH-ORD-{String(order.id).slice(-6)}
                   </h3>
                 </div>
               </div>
-              <span className="text-xs font-medium px-3 py-1 bg-neutral-800 text-neutral-300 rounded-full border border-neutral-700">
-                {status}
+              <span className={`text-xs font-semibold px-3 py-1 rounded-full border ${
+                order.status === "DELIVERED" 
+                  ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
+                  : order.status === "CANCELED"
+                  ? "bg-rose-500/10 text-rose-400 border-rose-500/30"
+                  : "bg-blue-500/10 text-blue-400 border-blue-500/30"
+              }`}>
+                {order.status}
               </span>
+            </div>
+
+            {/* Visual Order Status Tracker */}
+            <div className="px-6 py-3 bg-neutral-900/20 border-b border-neutral-800/60">
+              <div className="flex items-center justify-between text-xs max-w-md mx-auto py-1">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                  <span className="text-neutral-300 font-medium">Confirmed</span>
+                </div>
+                <div className={`h-[2px] flex-1 mx-2 ${order.status !== "CANCELED" ? "bg-emerald-500/40" : "bg-neutral-800"}`} />
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${
+                    order.status === "DELIVERED"
+                      ? "bg-emerald-400"
+                      : order.status === "SHIPPING"
+                      ? "bg-blue-400 animate-pulse"
+                      : "bg-neutral-700"
+                  }`}></span>
+                  <span className={order.status === "SHIPPING" ? "text-blue-300 font-medium" : "text-neutral-400"}>
+                    {order.status === "CANCELED" ? "Canceled" : "In Transit"}
+                  </span>
+                </div>
+                <div className={`h-[2px] flex-1 mx-2 ${order.status === "DELIVERED" ? "bg-emerald-500/40" : "bg-neutral-800"}`} />
+                <div className="flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${order.status === "DELIVERED" ? "bg-emerald-400" : "bg-neutral-700"}`}></span>
+                  <span className={order.status === "DELIVERED" ? "text-emerald-300 font-medium" : "text-neutral-500"}>
+                    Delivered
+                  </span>
+                </div>
+              </div>
             </div>
 
             {/* Order Items */}
